@@ -3,22 +3,22 @@ import google.generativeai as genai
 import json
 
 # ────────────────────────────────────────────────
-#  Config & API Key (HARDCODED as you requested)
+
 # ────────────────────────────────────────────────
 st.set_page_config(page_title="Flavour Fusion", layout="wide", page_icon="🧑‍🍳")
 
-API_KEY = "AIzaSyCczLzk0NETBmQvbrge2NORAtZMfCAFsQU"  # Your key is now permanently here
+API_KEY = st.secrets.get("GEMINI_API_KEY", "")  # Your key is now permanently here
 
-if not API_KEY:
-    st.error("API key is missing! (This shouldn't happen since it's hardcoded.)")
+if not API_KEY:  
+    st.error("Gemini API key is missing! Add it in Streamlit Cloud secrets.")  
     st.stop()
 
 genai.configure(api_key=API_KEY)
 
-MODEL_NAME = "gemini-2.5-flash"   # or "gemini-1.5-flash-latest" if you prefer
+MODEL_NAME = "gemini-2.5-flash"  
 
 # ────────────────────────────────────────────────
-#  UI – Header (matching your dark theme vibe from screenshot)
+
 # ────────────────────────────────────────────────
 st.markdown(
     """
@@ -69,7 +69,7 @@ if st.button("⭐ Generate Recipe", type="primary", use_container_width=True):
         with st.spinner("🍲 Cooking up your recipe... (This may take 10-30 seconds)"):
             try:
                 # ──────────────────────────────
-                #  Gemini Prompt (same as before)
+               
                 # ──────────────────────────────
                 prompt = f"""Generate a detailed, engaging recipe blog post for the topic: "{topic}".
 Aim for approximately {word_count} words in total.
@@ -179,4 +179,5 @@ with cols[2]:
     st.markdown("**📖 Pro Quality**  \nStructured & engaging content.")
 
 st.markdown("---")
-st.caption("🧑‍🍳 Flavour Fusion • AI-Driven Recipe Blogging • Made by Mohammed")
+
+st.caption("🧑‍🍳 Flavour Fusion • AI-Driven Recipe Blogging • Made by AVAITOR(MOIN)")
