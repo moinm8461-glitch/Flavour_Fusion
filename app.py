@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 import json
-
+import random
 # ────────────────────────────────────────────────
 
 # ────────────────────────────────────────────────
@@ -42,6 +42,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown(
+    f"""
+    <div style="background-color:#2e3b4e; padding:15px; border-radius:10px; margin:15px 0;">
+        <strong>😂 Chef's Joke Time:</strong><br>
+        {random_joke}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 st.markdown("---")
 
 # ────────────────────────────────────────────────
@@ -66,11 +76,30 @@ if st.button("⭐ Generate Recipe", type="primary", use_container_width=True):
     if not topic.strip():
         st.error("Please enter a recipe topic!")
     else:
-        with st.spinner("🍲 Cooking up your recipe... (This may take 10-30 seconds)"):
+        # ── Prepare jokes ──
+        jokes = [
+            "Why did the tomato turn red? Because it saw the salad dressing! 🥗",
+            "What do you call cheese that isn't yours? **Nacho** cheese! 🧀",
+            "Why don't eggs tell jokes? They'd crack each other up! 🥚",
+            "I'm on a seafood diet. I see food and I eat it. 🍔",
+            "What did the bread say to the butter? You're on a roll! 🧈",
+            "Why did the chef quit? Too much drama in the kitchen — everyone was getting roasted! 🔥",
+            "How does a cucumber become a pickle? It goes through a jarring experience. 🥒",
+            "Pasta la vista, baby! 🍝",
+            "Why was the pizza maker bad at relationships? He kept topping everyone else! 🍕",
+            "What do you call a fake noodle? An **impasta**! 😏"
+        ]
+
+        # Pick a random joke (or you can cycle through them later)
+        random_joke = random.choice(jokes)
+
+        # Show loading + joke
+        with st.spinner("🍲 Cooking up your recipe... (This may take 10–30 seconds)"):
+            # Joke box during loading
+            st.info(f"**While you wait...**  \n{random_joke}")
+
             try:
-                # ──────────────────────────────
-               
-                # ──────────────────────────────
+                # Your existing prompt and generation code
                 prompt = f"""Generate a detailed, engaging recipe blog post for the topic: "{topic}".
 Aim for approximately {word_count} words in total.
 Make it professional, appealing for a food blog, well-structured.
@@ -92,7 +121,6 @@ Output **only valid JSON** (no markdown, no extra text) with these exact keys:
 """
 
                 model = genai.GenerativeModel(MODEL_NAME)
-
                 response = model.generate_content(
                     prompt,
                     generation_config=genai.types.GenerationConfig(
@@ -108,14 +136,12 @@ Output **only valid JSON** (no markdown, no extra text) with these exact keys:
                 st.session_state["word_count"] = word_count
                 st.session_state["show_output"] = True
 
-                # Auto-rerun to show output
                 st.rerun()
 
             except json.JSONDecodeError:
                 st.error("Gemini returned invalid JSON. Try a different topic or shorter prompt.")
             except Exception as e:
                 st.error(f"Error generating recipe: {str(e)}\n\nCheck if your API key is valid/active.")
-
 # ────────────────────────────────────────────────
 #  Output Section
 # ────────────────────────────────────────────────
@@ -181,3 +207,4 @@ with cols[2]:
 st.markdown("---")
 
 st.caption("🧑‍🍳 Flavour Fusion • AI-Driven Recipe Blogging • Made by AVAITOR(MOIN)")
+
