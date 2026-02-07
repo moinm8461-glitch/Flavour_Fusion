@@ -2,23 +2,20 @@ import streamlit as st
 import google.generativeai as genai
 import json
 import random
-# ────────────────────────────────────────────────
 
 # ────────────────────────────────────────────────
 st.set_page_config(page_title="Flavour Fusion", layout="wide", page_icon="🧑‍🍳")
 
-API_KEY = st.secrets.get("GEMINI_API_KEY", "")  # Your key is now permanently here
-
-if not API_KEY:  
-    st.error("Gemini API key is missing! Add it in Streamlit Cloud secrets.")  
+API_KEY = st.secrets.get("GEMINI_API_KEY", "")
+if not API_KEY:
+    st.error("Gemini API key is missing! Add it in Streamlit Cloud secrets.")
     st.stop()
 
 genai.configure(api_key=API_KEY)
-
 MODEL_NAME = "gemini-2.5-flash"  
 
 # ────────────────────────────────────────────────
-
+# Styling & Header
 # ────────────────────────────────────────────────
 st.markdown(
     """
@@ -42,20 +39,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown(
-    f"""
-    <div style="background-color:#2e3b4e; padding:15px; border-radius:10px; margin:15px 0;">
-        <strong>😂 Chef's Joke Time:</strong><br>
-        {random_joke}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
 st.markdown("---")
 
 # ────────────────────────────────────────────────
-#  Input Section
+# Input Section
 # ────────────────────────────────────────────────
 st.subheader("Cook Up Something New 🍳")
 
@@ -70,40 +57,35 @@ with col1:
 
 with col2:
     word_count_options = [500, 800, 1000, 1200, 1500, 2000]
-    word_count = st.selectbox("Target Word Count", word_count_options, index=1)  # default 800
+    word_count = st.selectbox("Target Word Count", word_count_options, index=1)
 
 if st.button("⭐ Generate Recipe", type="primary", use_container_width=True):
     if not topic.strip():
         st.error("Please enter a recipe topic!")
     else:
-        # ── Prepare jokes ──
         jokes = [
             "Why did the tomato turn red? Because it saw the salad dressing! 🥗",
             "What do you call cheese that isn't yours? **Nacho** cheese! 🧀",
             "Why don't eggs tell jokes? They'd crack each other up! 🥚",
             "I'm on a seafood diet. I see food and I eat it. 🍔",
             "What did the bread say to the butter? You're on a roll! 🧈",
-            "Why did the chef quit? Too much drama in the kitchen — everyone was getting roasted! 🔥",
+            "Why did the chef quit? Too much drama — everyone was getting roasted! 🔥",
             "How does a cucumber become a pickle? It goes through a jarring experience. 🥒",
             "Pasta la vista, baby! 🍝",
-            "Why was the pizza maker bad at relationships? He kept topping everyone else! 🍕",
+            "Why was the pizza maker bad at relationships? He kept topping everyone! 🍕",
             "What do you call a fake noodle? An **impasta**! 😏"
         ]
 
-        # Pick a random joke (or you can cycle through them later)
         random_joke = random.choice(jokes)
 
-        # Show loading + joke
-        with st.spinner("🍲 Cooking up your recipe... (This may take 10–30 seconds)"):
-            # Joke box during loading
+        with st.spinner("🍲 Cooking up your recipe... (10–30 seconds)"):
+            # Joke appears only during loading
             st.info(f"**While you wait...**  \n{random_joke}")
 
             try:
-                # Your existing prompt and generation code
                 prompt = f"""Generate a detailed, engaging recipe blog post for the topic: "{topic}".
 Aim for approximately {word_count} words in total.
 Make it professional, appealing for a food blog, well-structured.
-
 Output **only valid JSON** (no markdown, no extra text) with these exact keys:
 {{
   "title": "string",
@@ -131,19 +113,18 @@ Output **only valid JSON** (no markdown, no extra text) with these exact keys:
                 raw_text = response.text.strip()
                 data = json.loads(raw_text)
 
-                # Save to session state
                 st.session_state["recipe_data"] = data
                 st.session_state["word_count"] = word_count
                 st.session_state["show_output"] = True
-
                 st.rerun()
 
             except json.JSONDecodeError:
-                st.error("Gemini returned invalid JSON. Try a different topic or shorter prompt.")
+                st.error("Gemini returned invalid JSON. Try different topic.")
             except Exception as e:
-                st.error(f"Error generating recipe: {str(e)}\n\nCheck if your API key is valid/active.")
+                st.error(f"Error: {str(e)}\nCheck API key or try again.")
+
 # ────────────────────────────────────────────────
-#  Output Section
+# Output Section
 # ────────────────────────────────────────────────
 if "show_output" in st.session_state and st.session_state.show_output:
     data = st.session_state.recipe_data
@@ -187,12 +168,11 @@ if "show_output" in st.session_state and st.session_state.show_output:
                 if key in st.session_state:
                     del st.session_state[key]
             st.rerun()
-
     with col2:
         st.caption("Powered by your Gemini API key • Enjoy! 🍴")
 
 # ────────────────────────────────────────────────
-#  Footer / Why section
+# Footer
 # ────────────────────────────────────────────────
 st.markdown("---")
 st.subheader("Why Food Bloggers Love Flavour Fusion")
@@ -205,6 +185,4 @@ with cols[2]:
     st.markdown("**📖 Pro Quality**  \nStructured & engaging content.")
 
 st.markdown("---")
-
 st.caption("🧑‍🍳 Flavour Fusion • AI-Driven Recipe Blogging • Made by AVAITOR(MOIN)")
-
